@@ -18,14 +18,14 @@ The mod improves UTF-8 text handling in CC:Tweaked terminals and related periphe
 ## Tested with
 
 * Minecraft 1.21.1
-* NeoForge 21.1.248
-* CC:Tweaked 1.120.2
+* NeoForge 21.1.247
+* CC:Tweaked 1.120.0
 
 ## Requirements
 
 * Minecraft 1.21.1
 * NeoForge
-* CC:Tweaked 1.120.2 (NeoForge)
+* CC:Tweaked 1.120.0 (NeoForge)
 
 This mod is version-specific and depends on CC:Tweaked internals. Other CC:Tweaked versions are not guaranteed to work.
 
@@ -37,7 +37,7 @@ Required files:
 
 ```text
 mods/
-  cc-tweaked-1.21.1-forge-1.120.2.jar
+  cc-tweaked-1.21.1-forge-1.120.0.jar
   cc_utf8_compat-1.0.1-beta.1.jar
 ```
 
