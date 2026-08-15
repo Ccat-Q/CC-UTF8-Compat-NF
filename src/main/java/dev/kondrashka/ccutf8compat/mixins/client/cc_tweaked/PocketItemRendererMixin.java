@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
 
@@ -21,6 +20,7 @@ import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.Colour;
 
+import dev.kondrashka.ccutf8compat.client.render.CcUtf8RenderUtil;
 import dev.kondrashka.ccutf8compat.config.CcUtf8CompatConfig;
 import dev.kondrashka.ccutf8compat.access.CcUtf8TextBufferAccess;
 
@@ -93,19 +93,14 @@ public class PocketItemRendererMixin {
                 var textColour = palette.getRenderColours(
                         FixedWidthFontRenderer.getColour(textColourLine.charAt(x), Colour.WHITE));
 
-                var drawX = startX + x * FONT_WIDTH + Math.max(0.0f, (FONT_WIDTH - font.width(text)) / 2.0f);
-                var drawY = startY + y * FONT_HEIGHT;
-
-                font.drawInBatch(
+                CcUtf8RenderUtil.drawGlyph(
+                        font,
                         text,
-                        drawX,
-                        drawY,
+                        startX + x * FONT_WIDTH,
+                        startY + y * FONT_HEIGHT,
                         textColour,
-                        false,
                         matrix,
                         bufferSource,
-                        Font.DisplayMode.NORMAL,
-                        0,
                         RenderTypes.FULL_BRIGHT_LIGHTMAP);
             }
         }

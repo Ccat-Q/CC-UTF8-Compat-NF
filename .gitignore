@@ -14,6 +14,10 @@ out/
 build/
 .gradle/
 
+# Local tooling indexes
+.codegraph/
+.omo/
+
 run/
 
 forge*changelog.txt

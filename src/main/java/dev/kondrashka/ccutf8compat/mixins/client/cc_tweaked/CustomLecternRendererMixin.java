@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
 import dan200.computercraft.client.model.LecternPocketModel;
@@ -24,6 +23,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.lectern.CustomLecternBlockEntity;
 
+import dev.kondrashka.ccutf8compat.client.render.CcUtf8RenderUtil;
 import dev.kondrashka.ccutf8compat.config.CcUtf8CompatConfig;
 import dev.kondrashka.ccutf8compat.access.CcUtf8TextBufferAccess;
 
@@ -121,19 +121,14 @@ public class CustomLecternRendererMixin {
                 var textColour = palette.getRenderColours(
                         FixedWidthFontRenderer.getColour(textColourLine.charAt(x), Colour.BLACK));
 
-                var drawX = x * FONT_WIDTH + Math.max(0.0f, (FONT_WIDTH - font.width(text)) / 2.0f);
-                var drawY = y * FONT_HEIGHT;
-
-                font.drawInBatch(
+                CcUtf8RenderUtil.drawGlyph(
+                        font,
                         text,
-                        drawX,
-                        drawY,
+                        x * FONT_WIDTH,
+                        y * FONT_HEIGHT,
                         textColour,
-                        false,
                         matrix,
                         buffer,
-                        Font.DisplayMode.NORMAL,
-                        0,
                         RenderTypes.FULL_BRIGHT_LIGHTMAP);
             }
         }

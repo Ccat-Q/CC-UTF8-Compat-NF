@@ -44,7 +44,7 @@ public class NetworkedTerminalMixin {
         buf.writeByte(terminal.getBackgroundColour() << 4 | terminal.getTextColour());
         buf.writeByteArray(contents);
 
-        return new TerminalState(buf);
+        return TerminalState.STREAM_CODEC.decode(buf);
     }
 
     @Unique

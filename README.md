@@ -1,6 +1,6 @@
 # CC UTF-8 Compat
 
-CC UTF-8 Compat adds UTF-8 compatibility patches for CC:Tweaked on Minecraft 1.20.1 Forge.
+CC UTF-8 Compat adds UTF-8 compatibility patches for CC:Tweaked on Minecraft 1.21.1 NeoForge.
 
 The mod improves UTF-8 text handling in CC:Tweaked terminals and related peripherals. It is mainly intended for modpacks or servers that need non-ASCII text support, such as Russian, Chinese, Spanish accents, and other Unicode characters.
 
@@ -17,15 +17,15 @@ The mod improves UTF-8 text handling in CC:Tweaked terminals and related periphe
 
 ## Tested with
 
-* Minecraft 1.20.1
-* Forge 47.4.10
-* CC:Tweaked 1.116.1
+* Minecraft 1.21.1
+* NeoForge 21.1.248
+* CC:Tweaked 1.120.2
 
 ## Requirements
 
-* Minecraft 1.20.1
-* Forge
-* CC:Tweaked 1.116.1
+* Minecraft 1.21.1
+* NeoForge
+* CC:Tweaked 1.120.2 (NeoForge)
 
 This mod is version-specific and depends on CC:Tweaked internals. Other CC:Tweaked versions are not guaranteed to work.
 
@@ -37,13 +37,23 @@ Required files:
 
 ```text
 mods/
-  cc-tweaked-1.20.1-forge-1.116.1.jar
+  cc-tweaked-1.21.1-forge-1.120.2.jar
   cc_utf8_compat-1.0.1-beta.1.jar
 ```
 
 For singleplayer, place both mods in the client `mods` folder.
 
 For multiplayer, the compat mod must be installed on both sides.
+
+## Building
+
+The project uses NeoForge ModDevGradle (Java 21 required):
+
+```text
+gradlew build
+```
+
+The resulting jar is placed in `build/libs/`.
 
 ## Configuration
 
@@ -63,7 +73,7 @@ Set it to `false` to disable the patches without removing the mod.
 
 ## Known limitations
 
-This mod patches internal CC:Tweaked classes using mixins. Because of that, it is only tested against CC:Tweaked 1.116.1.
+This mod patches internal CC:Tweaked classes using mixins. Because of that, it is only tested against CC:Tweaked 1.120.2.
 
 Newer CC:Tweaked versions may change internal class names, method names, or behavior, which can break compatibility.
 

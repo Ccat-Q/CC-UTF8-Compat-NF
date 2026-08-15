@@ -13,21 +13,20 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
+import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.core.util.StringUtil;
-import dan200.computercraft.shared.computer.core.InputHandler;
 
+import dev.kondrashka.ccutf8compat.client.render.CcUtf8RenderUtil;
 import dev.kondrashka.ccutf8compat.config.CcUtf8CompatConfig;
 import dev.kondrashka.ccutf8compat.access.CcUtf8TextBufferAccess;
-import dev.kondrashka.ccutf8compat.access.CcUtf8ClientInputAccess;
 
 /**
  * Adds UTF-8 paste handling and Unicode rendering to CC:Tweaked's terminal widget.
@@ -38,7 +37,7 @@ public class TerminalWidgetMixin {
 
     @Shadow
     @Final
-    private InputHandler computer;
+    private UserComputerInput computerInput;
 
     @Shadow
     @Final
@@ -52,7 +51,7 @@ public class TerminalWidgetMixin {
     @Final
     private int innerY;
 
-    @Inject(method = {"renderWidget", "m_87963_"}, at = @At("TAIL"), remap = false)
+    @Inject(method = "renderWidget", at = @At("TAIL"), remap = false)
     private void ccUtf8$renderUnicodeOverlay(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (!CcUtf8CompatConfig.ENABLE_CC_UTF8_COMPAT.get()) {
             return;
@@ -91,10 +90,7 @@ public class TerminalWidgetMixin {
 
                 graphics.fill(drawX, drawY, drawX + FONT_WIDTH, drawY + FONT_HEIGHT, backgroundColour);
 
-                var glyphWidth = font.width(text);
-                var xOffset = Math.max(0, (FONT_WIDTH - glyphWidth) / 2);
-
-                graphics.drawString(font, text, drawX + xOffset, drawY, textColour, false);
+                CcUtf8RenderUtil.drawGlyph(graphics, font, text, drawX, drawY, textColour);
             }
         }
     }
@@ -109,7 +105,7 @@ public class TerminalWidgetMixin {
         var paste = ccUtf8$encodePasteUtf8(clipboard);
 
         if (paste.remaining() > 0) {
-            computer.paste(paste);
+            computerInput.paste(paste);
         }
 
         ci.cancel();
@@ -139,26 +135,5 @@ public class TerminalWidgetMixin {
         output.flip();
 
         return output.asReadOnlyBuffer();
-    }
-
-    @Inject(method = {"charTyped", "m_5534_"}, at = @At("HEAD"), cancellable = true, remap = false)
-    private void ccUtf8$charTypedUtf8(char ch, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-        if (!CcUtf8CompatConfig.ENABLE_CC_UTF8_COMPAT.get()) {
-            return;
-        }
-
-        if (ch == 0 || ch == '\r' || ch == '\n') {
-            return;
-        }
-
-        if (ch <= 255) {
-            return;
-        }
-
-        if (computer instanceof CcUtf8ClientInputAccess input) {
-            input.ccUtf8$charTypedCodepoint(ch);
-            cir.setReturnValue(true);
-        }
-
     }
 }
