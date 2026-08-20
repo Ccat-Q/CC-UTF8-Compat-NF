@@ -38,9 +38,44 @@ local type, getmetatable, setmetatable, colours, str_write, tostring = type, get
 local debug_info, debug_local = debug.getinfo, debug.getlocal
 
 local utf8_len = utf8.len
+local string_byte = string.byte
 
+-- byte width of the display unit starting at byte position i:<br>
+-- valid UTF-8 sequences count as one unit, every other byte counts as one unit
+local function unit_width(text, i)
+    local c = string_byte(text, i)
+    local width
+    if c < 0x80 then width = 1
+    elseif c < 0xC0 then width = 1
+    elseif c < 0xE0 then width = 2
+    elseif c < 0xF0 then width = 3
+    elseif c < 0xF8 then width = 4
+    else width = 1 end
+
+    if width > 1 then
+        for k = 2, width do
+            local b = string_byte(text, i + k - 1)
+            if not b or b < 0x80 or b > 0xBF then
+                return 1
+            end
+        end
+    end
+
+    return width
+end
+
+-- length in display units: valid UTF-8 sequences count as 1, every other byte counts as 1
 local function text_len(text)
-    return utf8_len(text) or #text
+    local len = utf8_len(text)
+    if len then return len end
+
+    local n, i, l = 0, 1, #text
+    while i <= l do
+        i = i + unit_width(text, i)
+        n = n + 1
+    end
+
+    return n
 end
 
 --- [`table.insert`] alternative, but with the length stored inline.

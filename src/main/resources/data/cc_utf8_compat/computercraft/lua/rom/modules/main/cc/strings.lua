@@ -13,16 +13,76 @@ local expect, range = expect.expect, expect.range
 
 local utf8_len = utf8.len
 local utf8_offset = utf8.offset
+local string_byte = string.byte
 local string_sub = string.sub
 
+-- byte width of the display unit starting at byte position i:<br>
+-- valid UTF-8 sequences count as one unit, every other byte counts as one unit
+local function unit_width(text, i)
+    local c = string_byte(text, i)
+    local width
+    if c < 0x80 then width = 1
+    elseif c < 0xC0 then width = 1
+    elseif c < 0xE0 then width = 2
+    elseif c < 0xF0 then width = 3
+    elseif c < 0xF8 then width = 4
+    else width = 1 end
+
+    if width > 1 then
+        -- verify continuation bytes; if malformed, treat the lead byte as its own unit
+        for k = 2, width do
+            local b = string_byte(text, i + k - 1)
+            if not b or b < 0x80 or b > 0xBF then
+                return 1
+            end
+        end
+    end
+
+    return width
+end
+
+-- length in display units: valid UTF-8 sequences count as 1, every other byte counts as 1
 local function text_len(text)
-    return utf8_len(text) or #text
+    local len = utf8_len(text)
+    if len then return len end
+
+    local n, i, l = 0, 1, #text
+    while i <= l do
+        i = i + unit_width(text, i)
+        n = n + 1
+    end
+
+    return n
 end
 
 local function text_sub(text, i, j)
     local len = utf8_len(text)
     if not len then
-        return string_sub(text, i, j)
+        -- mixed/legacy byte string: slice by display units
+        local total = text_len(text)
+
+        i = i or 1
+        j = j or total
+
+        if i < 1 then i = 1 end
+        if j > total then j = total end
+        if i > j or i > total then return "" end
+
+        local start_byte, end_byte
+        local pos, n, l = 1, 1, #text
+        while pos <= l do
+            if n == i then start_byte = pos end
+            if n == j + 1 then end_byte = pos break end
+            pos = pos + unit_width(text, pos)
+            n = n + 1
+        end
+
+        if not start_byte then return "" end
+        if end_byte then
+            return string_sub(text, start_byte, end_byte - 1)
+        else
+            return string_sub(text, start_byte)
+        end
     end
 
     i = i or 1
